@@ -1,5 +1,14 @@
 
-# Express + Prisma API Template
+# Express + Prisma API project profile
+แยกการทำงานระหว่าง
+-model
+-service
+-controller
+-route
+-app
+-server
+เพื่อง่ายต่อการปรับปรุงแก้ไขง่ายในภายภาคหลัง
+
 
 API สำหรับระบบจัดการผู้ใช้งาน พร้อมรีเซ็ตรหัสผ่านผ่านอีเมล และอัปโหลดภาพผ่าน Cloudinary
 
