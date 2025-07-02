@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model address {
+  house_number     String
+  village_number   Int
+  alley            String?
+  road             String?
+  subdistrict      String
+  district         String
+  province         String
+  postal_code      String
+  is_current_house Boolean @default(false)
+  id_card          String
+  house_id         Int     @id @default(autoincrement())
+  house_type       String?
+  persons          persons @relation(fields: [id_card], references: [id_card], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_crad")
+
+  @@unique([id_card, is_current_house])
+}
+
+model education {
+  education_level Education_level
+  university      String?
+  major           String?
+  start_year      Int?
+  end_year        Int?
+  gpa             Decimal?        @db.Decimal(3, 0)
+  id_card         String?
+  id              Int             @id @default(autoincrement())
+  persons         persons?        @relation(fields: [id_card], references: [id_card], onDelete: NoAction, onUpdate: NoAction, map: "pk_id_card")
+
+  @@unique([id_card, education_level], map: "unique_idcard_education_level")
+}
+
+model employee {
+  start_date      DateTime @db.Date
+  id_card         String   @id
+  salary          Int
+  position        String
+  military_status String
+  military_years  Int?
+  persons         persons  @relation(fields: [id_card], references: [id_card], onDelete: NoAction, onUpdate: NoAction, map: "fk_id card")
+}
+
+model family {
+  family_id             Int              @id @default(autoincrement())
+  id_card               String           @unique
+  father_name_last_name String?
+  father_age            Int?
+  father_occupation     String?
+  mother_name_last_name String?
+  mother_age            Int?
+  mother_occupation     String?
+  sibling_count         Int              @default(0)
+  father_phone          Int?
+  mother_phone          Int?
+  applicant_position    Int?
+  male_siblings         Int?
+  female_siblings       Int?
+  persons               persons          @relation(fields: [id_card], references: [id_card], onDelete: NoAction, onUpdate: NoAction, map: "fk_id card")
+  parent_address        parent_address[]
+}
+
+model intern {
+  start_date                DateTime       @db.Date
+  end_date                  DateTime       @db.Date
+  id_card                   String         @id(map: "Intern_pkey")
+  computer_skill            String
+  dream_job                 String
+  know_announcement_from    String
+  expect                    String
+  thing_want_to_do          String
+  hobby                     String
+  character                 String
+  id_line                   String?
+  ig                        String?
+  facebook                  String?
+  marital_status            marital_status
+  second_dream_job          String?
+  third_dream_job           String?
+  is_know_person_in_company Boolean?
+  know_person               String?
+  emergen_name_last_name    String?
+  emergen_relation          String?
+  emergen_phone             String?
+  medical_details           String?
+  medical                   Boolean?
+  persons                   persons        @relation(fields: [id_card], references: [id_card], onDelete: NoAction, onUpdate: NoAction, map: "fk_id card")
+}
+
+model login {
+  password       String?
+  is_admin       Boolean @default(false)
+  email          String  @id
+  is_super_admin Boolean @default(false)
+  persons        persons @relation(fields: [email], references: [email], onDelete: NoAction, onUpdate: NoAction, map: "fk_email")
+}
+
+model parent_address {
+  id             Int     @id @default(autoincrement())
+  family_id      Int
+  parent_type    String
+  house_number   String
+  village_number Int
+  alley          String?
+  road           String?
+  subdistrict    String
+  district       String
+  province       String
+  postal_code    String
+  family         family  @relation(fields: [family_id], references: [family_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_family_id")
+
+  @@unique([family_id, parent_type])
+}
+
+model persons {
+  position      String
+  name          String
+  last_name     String
+  nickname      String
+  name_eng      String
+  last_name_eng String
+  id_card       String      @id
+  issue_date    DateTime    @db.Date
+  expire_date   DateTime    @db.Date
+  birth_day     DateTime    @db.Date
+  birth_place   String
+  height        Int
+  weight        Int
+  nationality   String
+  religion      String
+  phone         String
+  home_phone    String?
+  office_phone  String?
+  sex           sex
+  sex_detail    String?
+  image         String?
+  email         String      @unique(map: "unique_email")
+  is_accept     Boolean?
+  idcardplace   String?
+  address       address[]
+  education     education[]
+  employee      employee?
+  family        family?
+  intern        intern?
+  login         login?
+  sibling       sibling[]
+}
+
+model sibling {
+  sibling_id Int     @id @default(autoincrement())
+  id_card    String
+  name       String
+  age        Int?
+  occupation String?
+  persons    persons @relation(fields: [id_card], references: [id_card], onDelete: NoAction, onUpdate: NoAction, map: "fk_id_card")
+}
+
+model testget {
+  id     Int    @id @default(autoincrement())
+  status String
+}
+
+enum Education_level {
+  HIGH_SCHOOL @map("มัธยมศึกษา")
+  VOCATIONAL  @map("ปวช.")
+  HIGHER_VOC  @map("ปวส.")
+  BACHELOR    @map("ป.ตรี")
+  MASTER      @map("ป.โท")
+  DOCTORATE   @map("ป.เอก")
+
+  @@map("Education level")
+}
+
+enum address_option {
+  current
+  registered
+  custom
+}
+
+enum house_type {
+  FAMILY_HOME @map("ครอบครัว")
+  OWN_HOME    @map("บ้านตัวเอง")
+  RENTED_HOME @map("บ้านเช่า")
+  DORMITORY   @map("หอพัก")
+  OTHER       @map("อื่นๆ")
+}
+
+enum marital_status {
+  single
+  in_a_relationship @map("in a relationship")
+  married
+  divorced
+
+  @@map("marital status")
+}
+
+enum military_status {
+  exemted
+  conscripted
+  no_military_service @map("no military service")
+
+  @@map("military status")
+}
+
+enum sex {
+  male
+  female
+  other
+}
